@@ -6,10 +6,7 @@ import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +20,7 @@ public class SellerDaoJDBC implements SellerDao {
         this.connection = conn;
     }
 
-    private static Department instantianteDepartment(ResultSet rs) throws SQLException {
+    private static Department instantiateDepartment(ResultSet rs) throws SQLException {
         Department dep = new Department();
         dep.setId(rs.getInt("DepartmentId"));
         dep.setName(rs.getString("DepName"));
@@ -61,7 +58,7 @@ public class SellerDaoJDBC implements SellerDao {
             rs = stmt.executeQuery();
 
             if (rs.next()) {
-                Department dep = instantianteDepartment(rs);
+                Department dep = instantiateDepartment(rs);
                 Seller seller = instantiateSeller(rs, dep);
 
                 return seller;
@@ -102,7 +99,7 @@ public class SellerDaoJDBC implements SellerDao {
                 Department dep = departmentMap.get(rs.getInt("DepartmentId"));
 
                 if (dep == null) {
-                    dep = instantianteDepartment(rs);
+                    dep = instantiateDepartment(rs);
                     departmentMap.put(rs.getInt("DepartmentId"), dep);
                 }
                 Seller seller = instantiateSeller(rs, dep);
@@ -142,7 +139,7 @@ public class SellerDaoJDBC implements SellerDao {
                 Department d = departmentMap.get(rs.getInt("DepartmentId"));
 
                 if (d == null) {
-                    d = instantianteDepartment(rs);
+                    d = instantiateDepartment(rs);
                     departmentMap.put(rs.getInt("DepartmentId"), d);
                 }
                 Seller s = instantiateSeller(rs, d);
@@ -165,7 +162,7 @@ public class SellerDaoJDBC implements SellerDao {
         String query = "INSERT INTO seller(Name, Email, BirthDate, BaseSalary, DepartmentId) VALUES(?, ?, ?, ?, ?)";
 
         try {
-            stmt = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, obj.getName());
             stmt.setString(2, obj.getEmail());
             stmt.setDate(3, java.sql.Date.valueOf(obj.getBirthDate()));
