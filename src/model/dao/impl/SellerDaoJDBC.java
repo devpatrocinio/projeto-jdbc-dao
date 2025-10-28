@@ -6,12 +6,10 @@ import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
-import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,10 +138,10 @@ public class SellerDaoJDBC implements SellerDao {
             List<Seller> sellers = new ArrayList<>();
             Map<Integer, Department> departmentMap = new HashMap<>();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Department d = departmentMap.get(rs.getInt("DepartmentId"));
 
-                if(d == null) {
+                if (d == null) {
                     d = instantianteDepartment(rs);
                     departmentMap.put(rs.getInt("DepartmentId"), d);
                 }
@@ -176,9 +174,9 @@ public class SellerDaoJDBC implements SellerDao {
 
             int rowsAffected = stmt.executeUpdate();
 
-            if(rowsAffected > 0) {
+            if (rowsAffected > 0) {
                 ResultSet rs = stmt.getGeneratedKeys();
-                if(rs.next()) {
+                if (rs.next()) {
                     int recoveredId = rs.getInt(1);
                     obj.setId(recoveredId);
                 }
@@ -186,7 +184,7 @@ public class SellerDaoJDBC implements SellerDao {
             } else {
                 throw new DBException("Insert error, no rows affected.");
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw new DBException(e.getMessage());
         } finally {
             DB.closeStatement(stmt);
@@ -195,6 +193,32 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void update(Seller obj) {
+
+        PreparedStatement stmt = null;
+        String query = "UPDATE seller " +
+                "SET Name = ?, " +
+                "Email = ?, " +
+                "BirthDate = ?, " +
+                "BaseSalary = ?, " +
+                "DepartmentId = ? " +
+                "WHERE Id = ?";
+
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, obj.getName());
+            stmt.setString(2, obj.getEmail());
+            stmt.setDate(3, java.sql.Date.valueOf(obj.getBirthDate()));
+            stmt.setDouble(4, obj.getBaseSalary());
+            stmt.setInt(5, obj.getDepartment().getId());
+            stmt.setInt(6, obj.getId());
+
+
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DBException(e.getMessage());
+        } finally {
+            DB.closeStatement(stmt);
+        }
 
     }
 

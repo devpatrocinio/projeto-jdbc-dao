@@ -16,7 +16,7 @@ public class Program {
 
         SellerDao sellerDao = DaoFactory.createSellerDao();
 
-        System.out.println("--- Teste 1 --- findById 1");
+        System.out.println("--- Teste 1 --- findById");
         Seller sellerTest1 = sellerDao.findById(1);
         System.out.println(sellerTest1);
 
@@ -24,7 +24,7 @@ public class Program {
         List<Seller> sellerList = sellerDao.findByDepartment(department);
 
         System.out.println();
-        System.out.println("--- Teste 2 --- findByDepartment " + department.getId());
+        System.out.println("--- Teste 2 --- findByDepartment");
         for(Seller s : sellerList) {
             System.out.println(s);
             System.out.println("Department hash code: " + s.getDepartment().hashCode());
@@ -45,5 +45,14 @@ public class Program {
 
         sellerDao.insert(newSeller);
         System.out.println("Inserted seller id: " + newSeller.getId());
+
+        System.out.println();
+        System.out.println("--- Teste 5 --- update");
+        sellerTest1 = sellerDao.findById(1);
+        sellerTest1.setName("Ash");
+        sellerTest1.setEmail("ash@globo.com");
+
+        sellerDao.update(sellerTest1);
+        System.out.println("Update completed");
     }
 }
