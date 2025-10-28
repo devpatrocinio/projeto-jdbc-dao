@@ -115,11 +115,11 @@ public class SellerDaoJDBC implements SellerDao {
             Map<Integer, Department> departmentMap = new HashMap<>();
 
             while(rs.next()) {
-                Department dep = departmentMap.get(department.getId());
+                Department dep = departmentMap.get(rs.getInt("DepartmentId"));
 
                 if(dep == null) {
                     dep = instantianteDepartment(rs);
-                    departmentMap.put(department.getId(), dep);
+                    departmentMap.put(rs.getInt("DepartmentId"), dep);
                 }
                 Seller seller = instantiateSeller(rs, dep);
                 sellers.add(seller);
