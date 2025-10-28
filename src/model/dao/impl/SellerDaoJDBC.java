@@ -224,6 +224,21 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void deleteById(Integer id) {
+        PreparedStatement stmt = null;
+        String query = "DELETE FROM seller WHERE id = ?";
 
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, id);
+            int rowsAffected = stmt.executeUpdate();
+
+            if(rowsAffected == 0) {
+                throw new DBException("Delete error, id not found");
+            }
+        } catch (SQLException e) {
+            throw new DBException(e.getMessage());
+        } finally {
+            DB.closeStatement(stmt);
+        }
     }
 }

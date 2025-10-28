@@ -8,10 +8,12 @@ import model.entities.Seller;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Scanner;
 
 public class Program {
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         SellerDao sellerDao = DaoFactory.createSellerDao();
@@ -40,11 +42,11 @@ public class Program {
 
         System.out.println();
         System.out.println("--- Teste 4 --- insert");
-        department = new Department(3, null);
-        Seller newSeller = new Seller(null,"Goku", "goku@gmail.com", LocalDate.parse("20/10/2003", fmt), 2000.0, department);
-
-        sellerDao.insert(newSeller);
-        System.out.println("Inserted seller id: " + newSeller.getId());
+//        department = new Department(3, null);
+//        Seller newSeller = new Seller(null,"Goku", "goku@gmail.com", LocalDate.parse("20/10/2003", fmt), 2000.0, department);
+//
+//        sellerDao.insert(newSeller);
+//        System.out.println("Inserted seller id: " + newSeller.getId());
 
         System.out.println();
         System.out.println("--- Teste 5 --- update");
@@ -54,5 +56,11 @@ public class Program {
 
         sellerDao.update(sellerTest1);
         System.out.println("Update completed");
+
+        System.out.println();
+        System.out.println("--- Teste 6 --- delete");
+        System.out.print("Enter an id to delete: ");
+        sellerDao.deleteById(scanner.nextInt());
+        System.out.println("Seller deleted");
     }
 }
