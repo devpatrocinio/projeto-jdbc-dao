@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,21 +43,6 @@ public class SellerDaoJDBC implements SellerDao {
         seller.setDepartment(dep);
 
         return seller;
-    }
-
-    @Override
-    public void insert(Seller obj) {
-
-    }
-
-    @Override
-    public void update(Seller obj) {
-
-    }
-
-    @Override
-    public void deleteById(Integer id) {
-
     }
 
     @Override
@@ -114,10 +100,10 @@ public class SellerDaoJDBC implements SellerDao {
             List<Seller> sellers = new ArrayList<>();
             Map<Integer, Department> departmentMap = new HashMap<>();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 Department dep = departmentMap.get(rs.getInt("DepartmentId"));
 
-                if(dep == null) {
+                if (dep == null) {
                     dep = instantianteDepartment(rs);
                     departmentMap.put(rs.getInt("DepartmentId"), dep);
                 }
@@ -137,6 +123,83 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public List<Seller> findAll() {
-        return null;
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+
+            String query = "SELECT seller.*, department.Name as DepName" +
+                    " FROM seller" +
+                    " INNER JOIN department ON seller.DepartmentId = department.id" +
+                    " ORDER BY Name";
+
+            stmt = connection.prepareStatement(query);
+            rs = stmt.executeQuery();
+
+            List<Seller> sellers = new ArrayList<>();
+            Map<Integer, Department> departmentMap = new HashMap<>();
+
+            while(rs.next()) {
+                Department d = departmentMap.get(rs.getInt("DepartmentId"));
+
+                if(d == null) {
+                    d = instantianteDepartment(rs);
+                    departmentMap.put(rs.getInt("DepartmentId"), d);
+                }
+                Seller s = instantiateSeller(rs, d);
+                sellers.add(s);
+            }
+
+            return sellers;
+        } catch (SQLException e) {
+            throw new DBException(e.getMessage());
+        } finally {
+            DB.closeStatement(stmt);
+            DB.closeResultSet(rs);
+        }
+    }
+
+    @Override
+    public void insert(Seller obj) {
+        PreparedStatement stmt = null;
+
+        String query = "INSERT INTO seller(Name, Email, BirthDate, BaseSalary, DepartmentId) VALUES(?, ?, ?, ?, ?)";
+
+        try {
+            stmt = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, obj.getName());
+            stmt.setString(2, obj.getEmail());
+            stmt.setDate(3, java.sql.Date.valueOf(obj.getBirthDate()));
+            stmt.setDouble(4, obj.getBaseSalary());
+            stmt.setInt(5, obj.getDepartment().getId());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if(rowsAffected > 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
+                if(rs.next()) {
+                    int recoveredId = rs.getInt(1);
+                    obj.setId(recoveredId);
+                }
+                DB.closeResultSet(rs);
+            } else {
+                throw new DBException("Insert error, no rows affected.");
+            }
+        } catch(SQLException e) {
+            throw new DBException(e.getMessage());
+        } finally {
+            DB.closeStatement(stmt);
+        }
+    }
+
+    @Override
+    public void update(Seller obj) {
+
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+
     }
 }
